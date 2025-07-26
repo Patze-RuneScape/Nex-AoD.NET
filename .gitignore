@@ -52,3 +52,17 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Config files
+appsettings.Development.json
+
+# EF Core
+database.db
+database.db-shm
+database.db-wal
+
+# User Files
+*.user
+
+# Visual Studio Files
+.vs/
