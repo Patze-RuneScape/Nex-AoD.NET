@@ -3,8 +3,9 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NexAoD.Extensions;
 
-namespace NexAod.Services;
+namespace NexAoD.Services;
 
 public class UtilityService
 {
@@ -31,7 +32,7 @@ public class UtilityService
 			.AddEnvironmentVariables()
 			.Build();
 
-		DebugServerGuildId = ulong.Parse(config.GetSection("Discord")?.GetSection("DebugServerGuildId")?.Value!);
+		DebugServerGuildId = (config.GetRequiredSection("Discord")?.GetRequiredSection("DebugServerGuildId")?.Value)!.ToUlong();
 
 		await Task.CompletedTask;
 	}
@@ -47,6 +48,39 @@ public class UtilityService
 			[
 				new Tuple<string, ulong>("NexAoD", 315710189762248705) //Nex, Angel of Death
 			];
+	#endregion
+
+	#region Discord
+
+	/// <summary>
+	/// Determines, if a role has permissions to do moderation-like actions
+	/// </summary>
+	/// <param name="role"></param>
+	/// <returns>true if a role is able to do moderation actions</returns>
+	public static bool IsElevatedRole(IRole role)
+	{
+		return role.Permissions.Administrator
+				|| role.Permissions.BanMembers
+				|| role.Permissions.CreateEvents
+				|| role.Permissions.CreateGuildExpressions
+				|| role.Permissions.DeafenMembers
+				|| role.Permissions.KickMembers
+				|| role.Permissions.ManageChannels
+				|| role.Permissions.ManageEmojisAndStickers
+				|| role.Permissions.ManageEvents
+				|| role.Permissions.ManageGuild
+				|| role.Permissions.ManageMessages
+				|| role.Permissions.ManageNicknames
+				|| role.Permissions.ManageRoles
+				|| role.Permissions.ManageWebhooks
+				|| role.Permissions.MentionEveryone
+				|| role.Permissions.ModerateMembers
+				|| role.Permissions.MuteMembers
+				|| role.Permissions.ViewAuditLog
+				|| role.Permissions.ViewGuildInsights
+				|| role.Permissions.ViewMonetizationAnalytics;
+	}
+
 	#endregion
 
 	#region Embeds

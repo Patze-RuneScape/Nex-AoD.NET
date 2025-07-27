@@ -1,10 +1,11 @@
 ﻿using Discord;
+using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace NexAod.Services;
+namespace NexAoD.Services;
 
 public class CommandHandlingService
 {
@@ -24,6 +25,7 @@ public class CommandHandlingService
 
 		// Hook CommandExecuted to handle post-command-execution logic.
 		_interactionService.SlashCommandExecuted += SlashCommandExecuted;
+		_interactionService.ComponentCommandExecuted += ComponentCommandExecuted;
 	}
 
 	/// <summary>
@@ -64,6 +66,8 @@ public class CommandHandlingService
 		}
 	}
 
+	#region PostExecution-Handlers
+
 	/// <summary>
 	/// Post-Command execution for slash-commands
 	/// </summary>
@@ -71,7 +75,31 @@ public class CommandHandlingService
 	/// <param name="arg2" cref="IInteractionContext"></param>
 	/// <param name="arg3" cref="IResult"></param>
 	/// <returns></returns>
-	private async Task SlashCommandExecuted(SlashCommandInfo arg1, IInteractionContext arg2, IResult arg3)
+	private async Task SlashCommandExecuted(SlashCommandInfo arg1, IInteractionContext arg2, Discord.Interactions.IResult arg3)
+	{
+		await CommandExecuted(arg1.Name, arg2, arg3);
+	}
+
+	/// <summary>
+	/// Post-Command execution for component interactions
+	/// </summary>
+	/// <param name="arg1" cref="ComponentCommandInfo"></param>
+	/// <param name="arg2" cref="IInteractionContext"></param>
+	/// <param name="arg3" cref="IResult"></param>
+	/// <returns></returns>
+	private async Task ComponentCommandExecuted(ComponentCommandInfo arg1, IInteractionContext arg2, Discord.Interactions.IResult arg3)
+	{
+		await CommandExecuted(arg1.Name, arg2, arg3);
+	}
+
+	/// <summary>
+	/// Post-Command execution for commands
+	/// </summary>
+	/// <param name="commandName" cref="string"></param>
+	/// <param name="arg2" cref="IInteractionContext"></param>
+	/// <param name="arg3" cref="IResult"></param>
+	/// <returns></returns>
+	private async Task CommandExecuted(string commandName, IInteractionContext arg2, Discord.Interactions.IResult arg3)
 	{
 		//check if commandExecution needs to be logged
 		bool log = true;
@@ -85,9 +113,9 @@ public class CommandHandlingService
 				case InteractionCommandError.UnmetPrecondition:
 					string reason = arg3.ErrorReason;
 
-					if (arg3 is PreconditionGroupResult pgr)
+					if (arg3 is Discord.Interactions.PreconditionGroupResult pgr)
 					{
-						reason += $"\r\n{string.Join("\r\n", pgr.Results.Select<PreconditionResult, string>(x => x.ErrorReason))}";
+						reason += $"\r\n{string.Join("\r\n", pgr.Results.Select<Discord.Interactions.PreconditionResult, string>(x => x.ErrorReason))}";
 					}
 
 					responseBuilder.WithDescription($"Unmet Precondition: {reason}");
@@ -121,9 +149,11 @@ public class CommandHandlingService
 
 		if (log)
 		{
-			string logMessage = $"{arg2.User.Mention} executed command `{arg1.Name}` in guild `{arg2.Guild.Name}` {(arg3.IsSuccess ? "successfully" : "with error")}";
+			string logMessage = $"{arg2.User.Mention} executed command `{commandName}` in guild `{arg2.Guild.Name}` {(arg3.IsSuccess ? "successfully" : "with error")}";
 			LogMessage msg = new LogMessage(arg3.IsSuccess ? LogSeverity.Info : LogSeverity.Warning, nameof(CommandHandlingService), logMessage);
 			await _loggingService.LogAsync(msg, arg2.User);
 		}
 	}
+
+	#endregion
 }

@@ -4,8 +4,9 @@ using Discord.Webhook;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NexAoD.Extensions;
 
-namespace NexAod.Services;
+namespace NexAoD.Services;
 
 public class LoggingService
 {
@@ -37,12 +38,16 @@ public class LoggingService
 		WebhookUrl = config.GetRequiredSection("Discord")?.GetRequiredSection("WebhookUrl")?.Value!;
 		_webhookClient = new DiscordWebhookClient(WebhookUrl);
 
+		BotOwners = config.GetRequiredSection("Discord")?.GetRequiredSection("BotOwners")?.GetChildren().Select(x => x.Value!.ToUlong()).ToArray();
+
 		await Task.CompletedTask;
 	}
 
 	#region Properties
 
 	public string? WebhookUrl { get; private set; }
+
+	public ulong[]? BotOwners { get; private set; }
 
 	#endregion
 
@@ -60,9 +65,12 @@ public class LoggingService
 			.WithDescription(message.Message)
 			.WithCurrentTimestamp();
 
+		string messageText = string.Empty;
+
 		switch (message.Severity)
 		{
 			case LogSeverity.Critical:
+				messageText = string.Join(" , ", BotOwners!.Select(x => $"<@{x}>"));
 				builder.WithColor(Color.DarkRed);
 				break;
 			case LogSeverity.Error:
@@ -75,9 +83,11 @@ public class LoggingService
 				builder.WithColor(Color.Blue);
 				break;
 			case LogSeverity.Verbose:
+				messageText = string.Join(" , ", BotOwners!.Select(x => $"<@{x}>"));
 				builder.WithColor(Color.LightGrey);
 				break;
 			case LogSeverity.Debug:
+				messageText = string.Join(" , ", BotOwners!.Select(x => $"<@{x}>"));
 				builder.WithColor(Color.Green);
 				break;
 			default:
@@ -89,6 +99,6 @@ public class LoggingService
 			builder.WithAuthor(user);
 		}
 
-		await _webhookClient.SendMessageAsync(embeds: [builder.Build()]);
+		await _webhookClient.SendMessageAsync(text: messageText, embeds: [builder.Build()], allowedMentions: AllowedMentions.All);
 	}
 }

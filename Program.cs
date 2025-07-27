@@ -3,9 +3,9 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NexAod.Services;
+using NexAoD.Services;
 
-namespace NexAod;
+namespace NexAoD;
 class Program
 {
 #pragma warning disable CS8618

@@ -1,8 +1,8 @@
 ﻿using Discord.Interactions;
 using Microsoft.Extensions.DependencyInjection;
-using NexAod.Services;
+using NexAoD.Services;
 
-namespace NexAod.Modules;
+namespace NexAoD.Modules;
 
 public class BaseModule : InteractionModuleBase<SocketInteractionContext>
 {
