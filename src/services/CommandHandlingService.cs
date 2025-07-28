@@ -15,6 +15,8 @@ public class CommandHandlingService
 	private readonly UtilityService _utilityService;
 	private readonly LoggingService _loggingService;
 
+	public int CommandsRun { get; private set; }
+
 	public CommandHandlingService(IServiceProvider services)
 	{
 		_serviceProvider = services;
@@ -77,6 +79,7 @@ public class CommandHandlingService
 	/// <returns></returns>
 	private async Task SlashCommandExecuted(SlashCommandInfo arg1, IInteractionContext arg2, Discord.Interactions.IResult arg3)
 	{
+		CommandsRun++;
 		await CommandExecuted(arg1.Name, arg2, arg3);
 	}
 
@@ -89,6 +92,7 @@ public class CommandHandlingService
 	/// <returns></returns>
 	private async Task ComponentCommandExecuted(ComponentCommandInfo arg1, IInteractionContext arg2, Discord.Interactions.IResult arg3)
 	{
+		CommandsRun++;
 		await CommandExecuted(arg1.Name, arg2, arg3);
 	}
 

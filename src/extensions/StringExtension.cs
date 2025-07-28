@@ -6,8 +6,8 @@ public static class StringExtension
 		return ulong.Parse(str);
 	}
 
-	public static string ToCodeBlock(this string str, bool multiLine = false)
+	public static string ToCodeBlock(this string str, bool multiLine = false, string syntax = "")
 	{
-		return multiLine ? $"```{str}```" : $"`{str}`";
+		return multiLine ? $"```{(!string.IsNullOrWhiteSpace(syntax) ? syntax + "\n" : "")}{str}```" : $"`{str}`";
 	}
 }

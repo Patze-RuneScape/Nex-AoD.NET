@@ -3,7 +3,9 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using NexAoD.Extensions;
+using System.Diagnostics;
 
 namespace NexAoD.Services;
 
@@ -48,6 +50,27 @@ public class UtilityService
 			[
 				new Tuple<string, ulong>("NexAoD", 315710189762248705) //Nex, Angel of Death
 			];
+	#endregion
+
+	#region General
+
+	/// <summary>
+	/// Gets Memory Information from the current process
+	/// </summary>
+	/// <returns>JSON serialized string with process memory information</returns>
+	public string GetMemoryInformation()
+	{
+		Process process = Process.GetCurrentProcess();
+		string[] memory = new string[]
+		{
+			$"{nameof(Process.PagedMemorySize64)}: {process.PagedMemorySize64 / 1024 / 1024} MB",
+			$"{nameof(Process.PeakPagedMemorySize64)}: {process.PeakPagedMemorySize64 / 1024 / 1024} MB",
+			$"{nameof(Process.PrivateMemorySize64)}: {process.PrivateMemorySize64 / 1024 / 1024} MB",
+		};
+
+		return JsonConvert.SerializeObject(memory, Formatting.Indented);
+	}
+
 	#endregion
 
 	#region Discord
